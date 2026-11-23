@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="description" content="AutoSense - Sistema de Diagnóstico OBD-II Inteligente com Acessibilidade para a Terceira Idade">
+  <title>AutoSense - Scanner & Telemetria OBD-II</title>
+
+  <!-- Google Fonts: Inter para alta legibilidade -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Estilos Principais e de Acessibilidade -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="accessibility.css">
+</head>
+<body class="font-normal">
+
+<div class="app-wrapper">
+  <!-- Contêiner do Dispositivo (Alternável entre Moldura de Celular ou Tela Cheia Web) -->
+  <div id="device-container" class="device-simulator">
+
+    <!-- Barra Superior / Top Bar -->
+    <header class="top-bar">
+      <div class="brand-section" onclick="App.switchTab('dashboard')" title="Ir para Painel">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <div class="brand-title">AutoSense</div>
+          <div class="brand-subtitle">OBD-II Smart HUD</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <!-- Status de Conexão com o Carro -->
+        <div id="obd-status-pill" class="obd-status-pill status-disconnected">
+          <span class="status-dot"></span>
+          <span id="obd-status-text">OBD Offline</span>
+        </div>
+
+        <!-- Botão Rápido de Acessibilidade Sênior -->
+        <button id="btn-toggle-senior" class="btn-senior-toggle" title="Ativar ou desativar modo com letras grandes e alto contraste">
+          👓 Modo Sênior
+        </button>
+
+        <!-- Botão Rápido SOS -->
+        <button id="btn-quick-sos" class="btn-quick-sos" title="Emergência e Assistência">
+          🚨 SOS
+        </button>
+
+        <!-- Badge do Usuário Logado -->
+        <div id="user-badge" class="user-badge" title="Clique para alternar de conta ou fazer login">
+          <div id="user-avatar" class="user-avatar">J</div>
+          <span id="user-name-short" class="user-name-short">João</span>
+          <span id="user-role-badge" style="font-size: 0.65rem; padding: 1px 6px; border-radius: 999px; background: rgba(255,230,0,0.2); color: #ffe600; font-weight: 800;">SÊNIOR</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Barra de Navegação entre Seções -->
+    <nav class="app-nav">
+      <button class="nav-tab-btn active" data-tab="dashboard">
+        <span>📊</span> Painel OBD
+      </button>
+      <button class="nav-tab-btn" data-tab="diagnostics">
+        <span>🔍</span> Diagnóstico
+        <span id="nav-dtc-badge" class="nav-badge-alert" style="display: none;">1</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="maintenance">
+        <span>🛠️</span> Manutenção & Viagens
+      </button>
+      <button class="nav-tab-btn" data-tab="accessibility">
+        <span>♿</span> Acessibilidade
+      </button>
+      <button id="nav-tab-admin" class="nav-tab-btn" data-tab="admin" style="display: none;">
+        <span>🛡️</span> Administração
+      </button>
+    </nav>
+
+    <!-- Conteúdo Principal Dinâmico -->
+    <main class="main-content">
+
+      <!-- 1. ABA: PAINEL PRINCIPAL OBD (DASHBOARD) -->
+      <section id="view-dashboard" class="view-section active">
+
+        <div class="vehicle-banner">
+          <div class="veh-info">
+            <div id="veh-title-name" class="veh-name">Toyota Corolla XEi 2.0</div>
+            <div class="veh-details">
+              <span id="veh-year-fuel">2021 • Flex • Prata</span>
+              <span>•</span>
+              <span id="veh-odometer-text">42.180 km</span>
+            </div>
+          </div>
+          <div>
+            <span id="veh-plate-text" class="veh-plate-pill">BRA2E19</span>
+          </div>
+        </div>
+
+        <div class="obd-controls-strip">
+          <button id="btn-toggle-connect" class="btn-obd-connect">
+            ⚡ Conectar ao Carro
+          </button>
+
+          <select id="preset-selector" class="preset-selector" title="Escolha a simulação de tráfego">
+            <option value="city">🚦 Trânsito Urbano (0-60 km/h)</option>
+            <option value="highway">🛣️ Rodovia Cruzeiro (80-120 km/h)</option>
+            <option value="idle">🅿️ Marcha Lenta / Parado</option>
+            <option value="overheat">🔥 Simular Superaquecimento (112°C)</option>
+            <option value="misfire">⚠️ Simular Falha de Ignição</option>
+          </select>
+
+          <button id="btn-voice-read" class="btn-voice-read" title="Ouvir leitura em voz alta">
+            🗣️ Ouvir Painel
+          </button>
+        </div>
+
+        <div id="mil-alert-banner" class="mil-alert-banner" style="display: none;">
+          <div class="mil-alert-icon">⚠️</div>
+          <div class="mil-alert-text">
+            <h4>Atenção: Luz de Injeção Eletrônica Ativa!</h4>
+            <p>O computador de bordo detectou anomalia mecânica no motor.</p>
+          </div>
+          <button class="btn-mil-action" onclick="App.switchTab('diagnostics')">
+            Ver Código DTC ➔
+          </button>
+        </div>
+
+        <div class="senior-hud-panel">
+          <div class="senior-big-cards-grid">
+            <div class="senior-hero-card">
+              <div class="senior-hero-label">Sua Velocidade Atual</div>
+              <div class="senior-hero-speed" id="senior-speed-val">0</div>
+              <div class="senior-hero-unit">QUILÔMETROS POR HORA</div>
+              <div id="senior-speed-tag" class="senior-status-tag">VEÍCULO PARADO</div>
+            </div>
+          </div>
+
+          <div class="senior-indicator-grid">
+            <div class="senior-ind-box">
+              <div class="senior-ind-icon">⛽</div>
+              <div class="senior-ind-title">Combustível</div>
+              <div id="senior-fuel-status" class="senior-ind-status">65%</div>
+            </div>
+
+            <div class="senior-ind-box">
+              <div class="senior-ind-icon">🌡️</div>
+              <div class="senior-ind-title">Temperatura</div>
+              <div id="senior-temp-status" class="senior-ind-status">MOTOR NORMAL</div>
+            </div>
+
+            <div class="senior-ind-box">
+              <div class="senior-ind-icon">🔋</div>
+              <div class="senior-ind-title">Bateria</div>
+              <div id="senior-battery-status" class="senior-ind-status">100% BOA</div>
+            </div>
+
+            <div class="senior-ind-box">
+              <div class="senior-ind-icon">🛡️</div>
+              <div class="senior-ind-title">Diagnóstico</div>
+              <div id="senior-diag-status" class="senior-ind-status" style="color: #00e676;">SEGURO</div>
+            </div>
+          </div>
+
+          <div class="senior-action-buttons">
+            <button class="btn-senior-action btn-senior-voice" onclick="App.triggerVoiceRead()">
+              📢 OUVIR TUDO EM VOZ ALTA
+            </button>
+            <button class="btn-senior-action" style="background:#333;color:#ffe600;border-color:#ffe600;" onclick="App.toggleAllInstruments()">📊 MOSTRAR / OCULTAR TODOS OS INSTRUMENTOS</button>
+            <button class="btn-senior-action btn-senior-emergency" onclick="App.openEmergencySOS()">
+              📞 LIGAR PARA O FILHO / FAMÍLIA
+            </button>
+          </div>
+        </div>
+
+        <div class="standard-hud-section">
+          <div class="gauges-grid">
+            <div class="gauge-box">
+              <canvas id="speedometer-canvas" class="gauge-canvas"></canvas>
+            </div>
+            <div class="gauge-box">
+              <canvas id="tachometer-canvas" class="gauge-canvas"></canvas>
+            </div>
+          </div>
+
+          <div class="telemetry-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Arrefecimento</span>
+                <span class="stat-icon">🌡️</span>
+              </div>
+              <div class="stat-value"><span id="stat-temp-val">90</span><span class="stat-unit">°C</span></div>
+              <div id="stat-temp-status" class="stat-status status-ok">Normal (90°C)</div>
+              <div class="stat-bar-track">
+                <div id="temp-bar-fill" class="stat-bar-fill" style="width: 50%; background: #00f2fe;"></div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Tanque</span>
+                <span class="stat-icon">⛽</span>
+              </div>
+              <div class="stat-value"><span id="stat-fuel-val">65</span><span class="stat-unit">%</span></div>
+              <div id="stat-fuel-status" class="stat-status status-ok">Autonomia: ~360 km</div>
+              <div class="stat-bar-track">
+                <div id="fuel-bar-fill" class="stat-bar-fill" style="width: 65%; background: #10b981;"></div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Bateria</span>
+                <span class="stat-icon">🔋</span>
+              </div>
+              <div class="stat-value"><span id="stat-battery-val">12.6</span><span class="stat-unit">V</span></div>
+              <div id="stat-battery-status" class="stat-status status-ok">Alternador carregando</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Consumo</span>
+                <span class="stat-icon">⚡</span>
+              </div>
+              <div class="stat-value"><span id="stat-consumption-val">11.8</span><span class="stat-unit">km/L</span></div>
+              <div class="stat-status">Médio: 11.2 km/L</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Pressão Óleo</span>
+                <span class="stat-icon">🛢️</span>
+              </div>
+              <div class="stat-value"><span id="stat-oil-val">38</span><span class="stat-unit">PSI</span></div>
+              <div class="stat-status status-ok">Lubrificação ideal</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Borboleta</span>
+                <span class="stat-icon">🎯</span>
+              </div>
+              <div class="stat-value"><span id="stat-throttle-val">18</span><span class="stat-unit">%</span></div>
+              <div class="stat-status">Carga: Condução Suave</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📟 Console de Comunicação do Scanner (ELM327)</span>
+          </div>
+          <div id="terminal-box" class="terminal-box">
+            <div class="terminal-line">[00:00:00] AutoSense OBD Engine pronto para conexão.</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 2. ABA: DIAGNÓSTICO OBD-II (CÓDIGOS DTC) -->
+      <section id="view-diagnostics" class="view-section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🔍 Varredura da Injeção Eletrônica (DTC)</span>
+            <span id="dtc-count-badge" class="dtc-sev-badge" style="background: rgba(255,255,255,0.1); color: #fff;">1 Falha</span>
+          </div>
+
+          <p style="font-size: 0.85rem; color: #9ca3af; margin-bottom: 14px;">
+            Veículo conectado: <strong id="diag-veh-name" style="color: #fff;">Toyota Corolla (BRA2E19)</strong><br>
+            Protocolo OBD: <code id="diag-protocol-text" style="color: #00f2fe;">ISO 15765-4 CAN</code>
+          </p>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
+            <button id="btn-scan-dtc" class="btn-primary" style="flex: 1; min-width: 160px;">
+              🔄 Escanear Novamente
+            </button>
+            <button id="btn-clear-dtc" class="btn-primary" style="flex: 1; min-width: 160px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000;">
+              🧹 Limpar Códigos (Apagar MIL)
+            </button>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border-subtle); border-radius: 8px; padding: 10px; margin-bottom: 16px;">
+            <div style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 6px; font-weight: 600;">🧪 Simular Falhas do Carro (Demonstração):</div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button class="btn-action-icon" onclick="App.simulateAddFault('P0300')">+ Falha Velas (P0300)</button>
+              <button class="btn-action-icon" onclick="App.simulateAddFault('P0115')">+ Sensor Temp (P0115)</button>
+              <button class="btn-action-icon" onclick="App.simulateAddFault('P0420')">+ Catalisador (P0420)</button>
+              <button class="btn-action-icon" onclick="App.simulateAddFault('P0562')">+ Bateria Fraca (P0562)</button>
+            </div>
+          </div>
+
+          <div id="dtc-results-list" class="dtc-list"></div>
+        </div>
+      </section>
+
+      <!-- 3. ABA: MANUTENÇÃO & VIAGENS -->
+      <section id="view-maintenance" class="view-section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🧰 Plano de Manutenção Preventiva</span>
+          </div>
+          <p style="font-size: 0.82rem; color: #9ca3af; margin-bottom: 12px;">
+            Itens revisados com base no odômetro oficial lido pela ECU do carro:
+          </p>
+          <div id="maintenance-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🚗 Histórico de Viagens & Condução Suave</span>
+          </div>
+          <p style="font-size: 0.82rem; color: #9ca3af; margin-bottom: 12px;">
+            O AutoSense analisa acelerações, frenagens e curvas para avaliar a segurança da condução:
+          </p>
+          <div id="trips-history-list"></div>
+        </div>
+      </section>
+
+      <!-- 4. ABA: ACESSIBILIDADE & MODO SÊNIOR -->
+      <section id="view-accessibility" class="view-section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">♿ Central de Acessibilidade & Terceira Idade</span>
+          </div>
+          <p style="font-size: 0.85rem; color: #9ca3af; margin-bottom: 16px;">
+            Personalize o aplicativo para oferecer a experiência mais clara, segura e fácil de ler ao volante.
+          </p>
+
+          <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
+            <div>
+              <strong style="color: #fff; font-size: 0.95rem;">Modo Sênior Ativado</strong>
+              <div style="font-size: 0.75rem; color: #9ca3af;">Ativa o painel simplificado com foco na velocidade e alertas simples.</div>
+            </div>
+            <input type="checkbox" id="pref-senior-mode" style="width: 22px; height: 22px;" onchange="App.toggleSeniorModeQuick()">
+          </div>
+
+          <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
+            <div>
+              <strong style="color: #fff; font-size: 0.95rem;">Alto Contraste Amarelo & Preto (WCAG AAA)</strong>
+              <div style="font-size: 0.75rem; color: #9ca3af;">Ideal para pessoas com baixa visão, catarata ou claridade solar no painel.</div>
+            </div>
+            <input type="checkbox" id="pref-high-contrast" style="width: 22px; height: 22px;" onchange="
+                App.currentUser.highContrast = this.checked;
+                DB.updateUser(App.currentUser.id, { highContrast: this.checked });
+                App.applyAccessibilityPreferences();
+              ">
+          </div>
+
+          <div class="form-group" style="padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
+            <label class="form-label">Tamanho dos Textos e Números</label>
+            <select id="pref-font-size" class="form-select" onchange="
+                App.currentUser.fontSize = this.value;
+                DB.updateUser(App.currentUser.id, { fontSize: this.value });
+                App.applyAccessibilityPreferences();
+              ">
+              <option value="normal">Padrão</option>
+              <option value="large">Grande (+25%)</option>
+              <option value="xlarge">Extra Grande (+50%)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
+            <div>
+              <strong style="color: #fff; font-size: 0.95rem;">Alertas Falados em Voz Alta</strong>
+              <div style="font-size: 0.75rem; color: #9ca3af;">O celular avisa por voz sobre excesso de velocidade, combustível e superaquecimento.</div>
+            </div>
+            <input type="checkbox" id="pref-voice-alerts" style="width: 22px; height: 22px;" onchange="
+                App.currentUser.voiceAlerts = this.checked;
+                DB.updateUser(App.currentUser.id, { voiceAlerts: this.checked });
+              ">
+          </div>
+
+          <div style="margin-top: 16px;">
+            <button class="btn-primary" onclick="Speech.speak('Olá! O sistema de voz do AutoSense está funcionando perfeitamente em português. Dirija com calma e em segurança.');">
+              🔊 Testar Leitura por Voz Agora
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. ABA: PAINEL DO ADMINISTRADOR -->
+      <section id="view-admin" class="view-section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🛡️ Painel de Gestão Multi-Contas (Admin)</span>
+            <button class="btn-action-icon" onclick="App.showModal('add-user-modal')">➕ Novo Usuário</button>
+          </div>
+
+          <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+              <div id="adm-total-users" class="admin-stat-val">4</div>
+              <div class="admin-stat-lbl">Usuários</div>
+            </div>
+            <div class="admin-stat-card">
+              <div id="adm-total-vehicles" class="admin-stat-val">3</div>
+              <div class="admin-stat-lbl">Veículos OBD</div>
+            </div>
+            <div class="admin-stat-card">
+              <div id="adm-total-dtcs" class="admin-stat-val">2</div>
+              <div class="admin-stat-lbl">Falhas Ativas</div>
+            </div>
+            <div class="admin-stat-card">
+              <div id="adm-senior-users" class="admin-stat-val">2</div>
+              <div class="admin-stat-lbl">Modo Sênior</div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+              <tr>
+                <th>Motorista / E-mail</th>
+                <th>Tipo</th>
+                <th>Idade</th>
+                <th>Veículo Conectado</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+              </thead>
+              <tbody id="admin-users-tbody"></tbody>
+            </table>
+          </div>
+
+          <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-action-icon" style="flex: 1;" onclick="App.exportDatabaseBackup()">💾 Exportar Backup (JSON)</button>
+            <button class="btn-action-icon" style="flex: 1;" onclick="document.getElementById('import-file').click()">📥 Importar Backup</button>
+            <input type="file" id="import-file" accept="application/json" style="display:none" onchange="App.importDatabaseBackup(this)">
+            <button class="btn-action-icon" style="flex: 1; color: #f87171;" onclick="App.resetDatabase()">🔄 Restaurar Banco Padrão</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="view-mode-bar">
+      <span>AutoSense v2.5 OBD Smart</span>
+      <button id="btn-toggle-device-mode">💻 Modo Tela Cheia (Web)</button>
+    </footer>
+
+  </div>
+</div>
+
+<!-- ==============================================
+     MODAIS DO SISTEMA
+     ============================================== -->
+
+<!-- Modal 1: Alternar / Trocar de Conta Rápido (3 motoristas mais recentes + Admin fixo) -->
+<div id="account-switch-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 style="color: #fff;">👤 Trocar de Conta / Login</h3>
+      <button class="modal-close-btn" onclick="App.closeModal('account-switch-modal')">×</button>
+    </div>
+
+    <p style="font-size: 0.85rem; color: #9ca3af; margin-bottom: 14px;">
+      Selecione uma conta recente sincronizada com o banco de dados ou faça login:
+    </p>
+
+    <!-- Lista dinâmica preenchida automaticamente pelo db.js -->
+    <div id="quick-login-list"></div>
+
+    <div style="margin-top: 16px; display: flex; gap: 8px;">
+      <button class="btn-action-icon" style="flex: 1; padding: 10px;" onclick="App.closeModal('account-switch-modal'); App.showModal('login-modal');">
+        🔑 Fazer Login com Senha
+      </button>
+      <button class="btn-action-icon" style="flex: 1; padding: 10px;" onclick="App.closeModal('account-switch-modal'); App.showModal('register-modal');">
+        📝 Criar Nova Conta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: Login Tradicional -->
+<div id="login-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 style="color: #fff;">🔑 Entrar no AutoSense</h3>
+      <button class="modal-close-btn" onclick="App.closeModal('login-modal')">×</button>
+    </div>
+
+    <form onsubmit="App.handleLoginSubmit(event)">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input type="email" id="login-email" class="form-input" required placeholder="ex: seu.joao@autosense.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input type="password" id="login-password" class="form-input" required placeholder="Digite sua senha">
+      </div>
+      <button type="submit" class="btn-primary" style="margin-top: 10px;">Entrar na Conta</button>
+    </form>
+
+    <div class="quick-accounts-box">
+      <div style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 6px;">💡 Contas de demonstração prontas:</div>
+      <div style="font-size: 0.72rem; color: #d1d5db;">
+        Sr. João: <code>seu.joao@autosense.com</code> (senha: <code>123</code>)<br>
+        Mariana: <code>mariana@autosense.com</code> (senha: <code>123</code>)<br>
+        Admin: <code>admin@autosense.com</code> (senha: <code>admin</code>)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 3: Cadastro de Novo Usuário e Carro -->
+<div id="register-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 style="color: #fff;">📝 Criar Conta no AutoSense</h3>
+      <button class="modal-close-btn" onclick="App.closeModal('register-modal')">×</button>
+    </div>
+
+    <form onsubmit="App.handleRegisterSubmit(event)">
+      <div class="form-group">
+        <label class="form-label">Nome Completo</label>
+        <input type="text" id="reg-name" class="form-input" required placeholder="Ex: Roberto Carlos">
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <div class="form-group" style="flex: 2;">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="reg-email" class="form-input" required placeholder="roberto@email.com">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Idade</label>
+          <input type="number" id="reg-age" class="form-input" required min="18" max="110" value="65" placeholder="65">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input type="password" id="reg-password" class="form-input" required placeholder="Crie sua senha">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefone Celular</label>
+        <input type="tel" id="reg-phone" class="form-input" placeholder="(11) 98765-4321">
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
+      <h4 style="color: #00f2fe; font-size: 0.85rem; margin-bottom: 8px;">🚗 Dados do Veículo OBD</h4>
+
+      <div style="display: flex; gap: 10px;">
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Marca</label>
+          <input type="text" id="reg-car-make" class="form-input" required placeholder="Ex: Honda">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Modelo</label>
+          <input type="text" id="reg-car-model" class="form-input" required placeholder="Ex: HR-V EXL">
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Ano</label>
+          <input type="number" id="reg-car-year" class="form-input" required value="2022">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Placa</label>
+          <input type="text" id="reg-car-plate" class="form-input" required placeholder="ABC1D23">
+        </div>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
+      <h4 style="color: #ffd200; font-size: 0.85rem; margin-bottom: 8px;">🆘 Contato de Emergência (Família)</h4>
+
+      <div style="display: flex; gap: 10px;">
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Nome do Contato</label>
+          <input type="text" id="reg-em-name" class="form-input" placeholder="Ex: Filho Carlos">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Telefone</label>
+          <input type="tel" id="reg-em-phone" class="form-input" placeholder="(11) 99887-1122">
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" style="margin-top: 10px;">Cadastrar e Começar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal 4: Emergência & Assistência SOS -->
+<div id="sos-modal" class="modal-overlay">
+  <div class="modal-card" style="border: 3px solid #ff3333;">
+    <div class="modal-header">
+      <h2 style="color: #ff4d4d; font-size: 1.3rem;">🚨 Central de Emergência SOS</h2>
+      <button class="modal-close-btn" onclick="App.closeModal('sos-modal')">×</button>
+    </div>
+
+    <p style="font-size: 0.95rem; color: #fff; margin-bottom: 14px;">
+      Precisa de socorro com o seu veículo <strong id="sos-veh-info" style="color: #ffe600;">Corolla (BRA2E19)</strong>?
+    </p>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+      <button class="btn-senior-action btn-senior-emergency" onclick="App.triggerEmergencyCall('192')">
+        🚑 SAMU (192)
+      </button>
+      <button class="btn-senior-action btn-senior-emergency" onclick="App.triggerEmergencyCall('193')">🚒 BOMBEIROS (193)</button>
+      <button class="btn-senior-action" style="background: #25d366; color: #fff;" onclick="App.sendWhatsAppSOS()">
+        💬 ENVIAR MENSAGEM SOS NO WHATSAPP
+      </button>
+      <button class="btn-senior-action btn-senior-tow" onclick="App.callTow()">
+        🛞 CHAMAR GUINCHO 24H / SEGURO
+      </button>
+      <button class="btn-senior-action btn-senior-voice" onclick="App.triggerEmergencyCall(document.getElementById('sos-contact-phone').textContent)">
+        📞 LIGAR PARA: <span id="sos-contact-name">Contato Familiar</span> (<span id="sos-contact-phone"></span>)
+      </button>
+    </div>
+
+    <button class="btn-action-icon" style="width: 100%; padding: 12px;" onclick="App.closeModal('sos-modal')">
+      Fechar Janela de Emergência
+    </button>
+  </div>
+</div>
+
+<!-- Modal 5: Detalhes do Usuário (Para Administrador) -->
+<div id="user-detail-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 style="color: #fff;">📋 Detalhes da Conta do Motorista</h3>
+      <button class="modal-close-btn" onclick="App.closeModal('user-detail-modal')">×</button>
+    </div>
+    <div id="user-detail-modal-body"></div>
+    <button class="btn-primary" style="margin-top: 14px;" onclick="App.closeModal('user-detail-modal')">Fechar</button>
+  </div>
+</div>
+
+<!-- Modal 6: Adicionar Usuário pelo Admin -->
+<div id="add-user-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 style="color: #fff;">➕ Adicionar Usuário (Painel Admin)</h3>
+      <button class="modal-close-btn" onclick="App.closeModal('add-user-modal')">×</button>
+    </div>
+    <form onsubmit="
+        event.preventDefault();
+        const name = document.getElementById('adm-new-name').value;
+        const email = document.getElementById('adm-new-email').value;
+        const age = parseInt(document.getElementById('adm-new-age').value, 10);
+        const role = document.getElementById('adm-new-role').value;
+        try {
+          DB.createUser({ name, email, password: '123', age, role });
+          App.renderAdminPanel();
+          App.closeModal('add-user-modal');
+          alert('Usuário cadastrado com sucesso!');
+        } catch(e) { alert(e.message); }
+      ">
+      <div class="form-group">
+        <label class="form-label">Nome Completo</label>
+        <input type="text" id="adm-new-name" class="form-input" required placeholder="Nome do motorista">
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input type="email" id="adm-new-email" class="form-input" required placeholder="email@exemplo.com">
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Idade</label>
+          <input type="number" id="adm-new-age" class="form-input" required value="45">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Nível de Acesso</label>
+          <select id="adm-new-role" class="form-select">
+            <option value="user">Motorista / Usuário</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary" style="margin-top: 10px;">Salvar Conta</button>
+    </form>
+  </div>
+</div>
+
+<!-- Scripts do Aplicativo -->
+<script src="js/db.js"></script>
+<script src="js/speech.js"></script>
+<script src="js/obd-simulator.js"></script>
+<script src="js/gauges.js"></script>
+<script src="js/app.js"></script>
+<div id="toast-box" aria-live="polite" role="status"></div>
+</body>
+</html>

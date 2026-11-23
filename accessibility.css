@@ -1,0 +1,281 @@
+/**
+ * AutoSense - Accessibility & Senior Mode Stylesheet
+ * Otimizado especificamente para idosos, baixa visão, daltonismo e dificuldades motoras.
+ * Segue diretrizes WCAG 2.1 nível AAA (alto contraste, alvos de toque >= 56px, tipografia ampliada).
+ */
+
+/* Ativação do Modo Sênior */
+body.senior-mode-active {
+  --bg-primary: #000000 !important;
+  --bg-secondary: #121212 !important;
+  --bg-card: #1c1c1c !important;
+  --bg-card-hover: #2a2a2a !important;
+  --text-main: #ffffff !important;
+  --text-muted: #e0e0e0 !important;
+  --text-dim: #cccccc !important;
+  
+  --accent-cyan: #ffe600 !important; /* Amarelo ouro de altíssimo contraste */
+  --accent-blue: #38bdf8 !important;
+  --accent-amber: #ffcc00 !important;
+  --accent-red: #ff3333 !important;
+  --accent-green: #00e676 !important;
+  
+  --border-subtle: #444444 !important;
+  --border-focus: #ffe600 !important;
+}
+
+/* Modificadores de Tamanho de Fonte */
+body.font-large {
+  font-size: 18px !important;
+}
+
+body.font-large .stat-value {
+  font-size: 1.8rem !important;
+}
+
+body.font-xlarge {
+  font-size: 21px !important;
+}
+
+body.font-xlarge .stat-value {
+  font-size: 2.2rem !important;
+}
+
+body.font-xlarge .brand-title {
+  font-size: 1.5rem !important;
+}
+
+/* Alto Contraste Extremo (Preto e Amarelo / Branco) */
+body.high-contrast-active {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.high-contrast-active .card,
+body.high-contrast-active .stat-card,
+body.high-contrast-active .modal-card,
+body.high-contrast-active .vehicle-banner {
+  background: #000000 !important;
+  border: 3px solid #ffe600 !important;
+  box-shadow: none !important;
+}
+
+body.high-contrast-active .top-bar,
+body.high-contrast-active .app-nav {
+  background: #000000 !important;
+  border-bottom: 3px solid #ffe600 !important;
+}
+
+body.high-contrast-active .nav-tab-btn {
+  color: #ffffff !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+}
+
+body.high-contrast-active .nav-tab-btn.active {
+  color: #ffe600 !important;
+  border-bottom: 4px solid #ffe600 !important;
+}
+
+/* Alvos de Toque Maiores para facilidade motora */
+body.senior-mode-active button,
+body.senior-mode-active input,
+body.senior-mode-active select,
+body.senior-mode-active .nav-tab-btn {
+  min-height: 56px !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+}
+
+/* Card Especial do Modo Sênior (Visão Clara) */
+.senior-hud-panel {
+  display: none;
+  margin-bottom: 20px;
+}
+
+body.senior-mode-active .senior-hud-panel {
+  display: block;
+}
+
+/* Quando no modo sênior, podemos dar destaque ao HUD Simplificado */
+body.senior-mode-active .standard-hud-section {
+  display: none; /* Oculta tacômetro complexo se preferir a visão simples */
+}
+
+body.senior-mode-active.show-all-instruments .standard-hud-section {
+  display: block;
+}
+
+.senior-big-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.senior-hero-card {
+  background: #111111;
+  border: 3px solid #ffe600;
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.senior-hero-card.alert-state {
+  border-color: #ff3333;
+  background: #1a0505;
+}
+
+.senior-hero-label {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffe600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.senior-hero-speed {
+  font-size: 5rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.senior-hero-unit {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffe600;
+  margin-top: 4px;
+}
+
+.senior-status-tag {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  background: #00e676;
+  color: #000;
+}
+
+.senior-status-tag.warn {
+  background: #ffe600;
+  color: #000;
+}
+
+.senior-status-tag.danger {
+  background: #ff3333;
+  color: #fff;
+  animation: pulse-danger 1s infinite alternate;
+}
+
+@keyframes pulse-danger {
+  from { transform: scale(1); }
+  to { transform: scale(1.04); }
+}
+
+/* Grade de Indicadores Intuitivos Grandes */
+.senior-indicator-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.senior-ind-box {
+  background: #1a1a1a;
+  border: 2px solid #555;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+}
+
+.senior-ind-icon {
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+}
+
+.senior-ind-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e0e0e0;
+}
+
+.senior-ind-status {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-top: 4px;
+}
+
+/* Botões Gigantes de Acessibilidade */
+.senior-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.btn-senior-action {
+  width: 100%;
+  min-height: 64px;
+  border-radius: 16px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: transform 0.15s ease;
+}
+
+.btn-senior-action:active {
+  transform: scale(0.98);
+}
+
+.btn-senior-voice {
+  background: #ffe600;
+  color: #000000;
+  box-shadow: 0 4px 15px rgba(255, 230, 0, 0.4);
+}
+
+.btn-senior-emergency {
+  background: #ff3333;
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(255, 51, 51, 0.4);
+}
+
+.btn-senior-tow {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+/* Foco para navegação acessível por teclado */
+:focus-visible {
+  outline: 4px solid #ffe600 !important;
+  outline-offset: 2px !important;
+}
+
+/* Responsividade do HUD Sênior em telas médias */
+@media (min-width: 600px) {
+  .senior-indicator-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .senior-action-buttons {
+    flex-direction: row;
+  }
+}
+
+
+/* Notificações (substituem alert() bloqueante) */
+#toast-box { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; width: min(92vw, 460px); pointer-events: none; }
+.toast { background: #1c1c1c; color: #fff; border: 2px solid #ffe600; border-radius: 14px; padding: 14px 18px; font-weight: 700; font-size: 1rem; box-shadow: 0 8px 30px rgba(0,0,0,.6); animation: fadeIn .25s ease; }
+.toast.error { border-color: #ff3333; }
+.toast.success { border-color: #00e676; }
