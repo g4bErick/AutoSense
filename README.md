@@ -24,32 +24,20 @@ O **AutoSense** resolve esse problema conectando um adaptador automotivo **OBD-I
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 📖 Tutorial: Como Baixar e Rodar o Projeto no Seu Computador
 
-- **Front-end:** HTML5, CSS3 (`style.css` e `accessibility.css`), JavaScript (ES6+) e HTML5 Canvas
-- **Back-end:** Node.js com Express (`server.js`)
-- **Banco de Dados:** MySQL (`autosense`)
-- **Hardware / Protocolo:** Padrão automotivo OBD-II (interface ELM327)
-- **Automação Local:** Scripts de inicialização rápida para Windows (`iniciar.bat` e `server.ps1`)
+Siga os passos abaixo para testar o **AutoSense** localmente:
+
+### 1. O que você precisa ter instalado (Pré-requisitos)
+- **Node.js** (versão 18 ou superior) — [Baixar aqui](https://nodejs.org/)
+- **MySQL** (MySQL Server, MySQL Workbench ou XAMPP) — [Baixar aqui](https://dev.mysql.com/downloads/)
 
 ---
 
-## 📂 Estrutura do Repositório
-
-```text
-AutoSense/
-├── database/                                           # Scripts SQL (DDL, DML e consultas)
-│   ├── Database AutoSense.sql                          # Estrutura completa do banco e tabelas
-│   ├── Tabela Usuários, Veículos e Placas.sql          # Criação e consulta de entidades base
-│   ├── Insert dos Usuários, Veículos e Dispositivos.sql # Carga inicial de cadastros
-│   ├── Insert Leituras e Alertas.sql                   # Carga de telemetria e alertas DTC
-│   └── Filtro de Alertas.sql                           # Consultas filtradas por severidade
-├── js/                                                 # Scripts de telemetria, painel e acessibilidade
-├── index.html                                          # Interface principal do painel AutoSense
-├── style.css                                           # Estilização principal responsiva
-├── accessibility.css                                   # Modo de alto contraste e acessibilidade
-├── server.js                                           # Servidor web e API REST em Node.js
-├── iniciar.bat                                         # Atalho de inicialização rápida (Windows)
-├── server.ps1                                          # Script PowerShell de execução do ambiente
-├── package.json                                        # Dependências e metadados do projeto
-└── LICENSE                                             # Licença MIT
+### 2. Baixar os arquivos do projeto
+Você pode baixar de duas formas:
+- **Pelo navegador (mais simples):** Clique no botão verde **`<> Code`** no topo desta página e selecione **`Download ZIP`**. Depois, extraia a pasta no seu computador.
+- **Pelo terminal (Git):**
+  ```bash
+  git clone [https://github.com/g4bErick/AutoSense.git](https://github.com/g4bErick/AutoSense.git)
+  cd AutoSense
